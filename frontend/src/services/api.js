@@ -1,7 +1,19 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // In the browser, use relative '/api' which Vite proxies to http://127.0.0.1:8000
+  // This works identically on desktop (localhost:5173) and mobile Wi-Fi (e.g. 172.23.108.146:5173)
+  // completely bypassing Windows Firewall port 8000 blockages!
+  if (typeof window !== "undefined") {
+    return "/api";
+  }
+  return "http://127.0.0.1:8000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function request(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
   const token = typeof window !== "undefined" ? (localStorage.getItem("vipcare_token") || localStorage.getItem("careerlens_token")) : null;
   
   const headers = {
@@ -10,8 +22,30 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
+  const primaryUrl = `${API_BASE_URL}${endpoint}`;
+
   try {
-    const response = await fetch(url, { ...options, headers });
+    let response;
+    try {
+      // Abort controller with 12-second timeout to prevent mobile fetch from hanging indefinitely
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      response = await fetch(primaryUrl, { ...options, headers, signal: controller.signal });
+      clearTimeout(timeoutId);
+    } catch (primaryErr) {
+      // Fallback: if relative /api failed, try direct port 8000 on current host or localhost
+      if (typeof window !== "undefined" && window.location) {
+        const host = window.location.hostname || "127.0.0.1";
+        const fallbackUrl = `http://${host}:8000/api${endpoint}`;
+        const fallbackController = new AbortController();
+        const fallbackTimeout = setTimeout(() => fallbackController.abort(), 8000);
+        response = await fetch(fallbackUrl, { ...options, headers, signal: fallbackController.signal });
+        clearTimeout(fallbackTimeout);
+      } else {
+        throw primaryErr;
+      }
+    }
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `Request failed with status ${response.status}`);

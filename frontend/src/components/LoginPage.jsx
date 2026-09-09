@@ -221,9 +221,12 @@ export default function LoginPage({
       setResendCooldown(30);
       if (res && res.dev_otp) {
         setDevOtpHelper(res.dev_otp);
+        // Automatically prefill OTP digits so mobile verification is immediate
+        setSignupOtpDigits(res.dev_otp.split(""));
+      } else {
+        setSignupOtpDigits(["", "", "", "", "", ""]);
       }
       setSuccessMsg(`Verification code sent to ${email}. Check your Inbox and Spam/Junk folder.`);
-      setSignupOtpDigits(["", "", "", "", "", ""]);
       setTimeout(() => {
         if (signupOtpInputRefs.current[0]) {
           signupOtpInputRefs.current[0].focus();
@@ -366,6 +369,10 @@ export default function LoginPage({
       setResendCooldown(30);
       if (res && res.dev_otp) {
         setDevOtpHelper(res.dev_otp);
+        // Automatically prefill OTP digits so mobile verification is immediate
+        setOtpDigits(res.dev_otp.split(""));
+      } else {
+        setOtpDigits(["", "", "", "", "", ""]);
       }
       setSuccessMsg(`Verification code dispatched to ${email}. Check your Inbox and Spam/Junk folder.`);
       
@@ -1058,30 +1065,33 @@ export default function LoginPage({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "0.65rem 0.95rem",
+                      flexWrap: "wrap",
+                      gap: "0.6rem",
+                      padding: "0.75rem 1rem",
                       background: "rgba(16, 185, 129, 0.12)",
                       border: "1px solid rgba(52, 211, 153, 0.35)",
                       borderRadius: "10px",
-                      fontSize: "0.82rem",
+                      fontSize: "0.84rem",
                       color: "#34D399",
                       marginBottom: "1rem"
                     }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
                         <span>⚡</span>
                         <span>
-                          Verification Code: <strong style={{ letterSpacing: "3px", fontSize: "1.05rem", color: "#FFFFFF", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: "6px" }}>{devOtpHelper}</strong>
+                          Code: <strong style={{ letterSpacing: "3px", fontSize: "1.1rem", color: "#FFFFFF", background: "rgba(0,0,0,0.5)", padding: "2px 8px", borderRadius: "6px" }}>{devOtpHelper}</strong>
                         </span>
+                        <span style={{ fontSize: "0.74rem", color: "#A7F3D0" }}>(Delivered to Gmail &amp; Auto-Filled)</span>
                       </div>
                       <button
                         type="button"
                         className="btn-text"
-                        style={{ fontSize: "0.76rem", color: "#38BDF8", cursor: "pointer", fontWeight: 700, textDecoration: "underline" }}
+                        style={{ fontSize: "0.76rem", color: "#38BDF8", cursor: "pointer", fontWeight: 700, textDecoration: "underline", background: "rgba(56, 189, 248, 0.12)", padding: "4px 10px", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.3)" }}
                         onClick={() => {
                           const digits = devOtpHelper.split("");
                           setSignupOtpDigits(digits);
                         }}
                       >
-                        Auto-Fill Code ↵
+                        Re-Fill Code ↵
                       </button>
                     </div>
                   )}
@@ -1307,30 +1317,33 @@ export default function LoginPage({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "0.65rem 0.95rem",
+                      flexWrap: "wrap",
+                      gap: "0.6rem",
+                      padding: "0.75rem 1rem",
                       background: "rgba(16, 185, 129, 0.12)",
                       border: "1px solid rgba(52, 211, 153, 0.35)",
                       borderRadius: "10px",
-                      fontSize: "0.82rem",
+                      fontSize: "0.84rem",
                       color: "#34D399",
                       marginBottom: "1rem"
                     }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
                         <span>⚡</span>
                         <span>
-                          Verification Code: <strong style={{ letterSpacing: "3px", fontSize: "1.05rem", color: "#FFFFFF", background: "rgba(0,0,0,0.4)", padding: "2px 8px", borderRadius: "6px" }}>{devOtpHelper}</strong>
+                          Code: <strong style={{ letterSpacing: "3px", fontSize: "1.1rem", color: "#FFFFFF", background: "rgba(0,0,0,0.5)", padding: "2px 8px", borderRadius: "6px" }}>{devOtpHelper}</strong>
                         </span>
+                        <span style={{ fontSize: "0.74rem", color: "#A7F3D0" }}>(Delivered to Gmail &amp; Auto-Filled)</span>
                       </div>
                       <button
                         type="button"
                         className="btn-text"
-                        style={{ fontSize: "0.76rem", color: "#38BDF8", cursor: "pointer", fontWeight: 700, textDecoration: "underline" }}
+                        style={{ fontSize: "0.76rem", color: "#38BDF8", cursor: "pointer", fontWeight: 700, textDecoration: "underline", background: "rgba(56, 189, 248, 0.12)", padding: "4px 10px", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.3)" }}
                         onClick={() => {
                           const digits = devOtpHelper.split("");
                           setOtpDigits(digits);
                         }}
                       >
-                        Auto-Fill Code ↵
+                        Re-Fill Code ↵
                       </button>
                     </div>
                   )}

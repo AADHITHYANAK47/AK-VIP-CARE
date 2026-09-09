@@ -172,4 +172,6 @@ Validates:
 3. **"What is Counterfactual Fairness?"**  
    *Answer*: "It tests whether altering a protected attribute (e.g., backlog count from 1 to 0 or department from MECH to CSE) changes the candidate's rank when all technical skills and projects are kept identical. If the rank jumps significantly, algorithmic bias is detected."
 #   V I P C A R E  
+ #   V I P C A R E  
+ #   A K - V I P - C A R E  
  

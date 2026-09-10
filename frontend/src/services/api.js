@@ -1,6 +1,6 @@
 const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    return import.meta.env.VITE_API_URL.trim().replace(/\/+$/, "");
   }
   // In the browser, use relative '/api' which Vite proxies to http://127.0.0.1:8000
   // This works identically on desktop (localhost:5173) and mobile Wi-Fi (e.g. 172.23.108.146:5173)

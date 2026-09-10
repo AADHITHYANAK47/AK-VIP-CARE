@@ -24,17 +24,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API Routers
-app.include_router(auth.router, prefix=settings.API_V1_STR)
-app.include_router(students.router, prefix=settings.API_V1_STR)
-app.include_router(drives.router, prefix=settings.API_V1_STR)
-app.include_router(matching.router, prefix=settings.API_V1_STR)
-app.include_router(fairness.router, prefix=settings.API_V1_STR)
-app.include_router(feedback.router, prefix=settings.API_V1_STR)
-app.include_router(roadmap.router, prefix=settings.API_V1_STR)
-app.include_router(analytics.router, prefix=settings.API_V1_STR)
-app.include_router(system.router, prefix=settings.API_V1_STR)
-app.include_router(chatbot.router, prefix=settings.API_V1_STR)
+# Register API Routers (both under /api and at root for client URL compatibility)
+routers = [
+    auth.router,
+    students.router,
+    drives.router,
+    matching.router,
+    fairness.router,
+    feedback.router,
+    roadmap.router,
+    analytics.router,
+    system.router,
+    chatbot.router,
+]
+
+for r in routers:
+    app.include_router(r, prefix=settings.API_V1_STR)
+    app.include_router(r)  # Also available without /api prefix (e.g. /auth/login)
 
 @app.get("/")
 def root():

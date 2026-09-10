@@ -1,6 +1,9 @@
 import os
+import json
 from pathlib import Path
+from typing import Union, List, Any
 from dotenv import load_dotenv
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 # Load .env file from backend or root directory if present
@@ -19,7 +22,23 @@ class Settings(BaseSettings):
         "DATABASE_URL",
         "postgresql://postgres.qdcjhlhdghswooqxbriw:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
     )
-    CORS_ORIGINS: list[str] = ["*"]
+    CORS_ORIGINS: Union[str, List[str]] = ["*"]
+
+    @field_validator("CORS_ORIGINS", mode="after")
+    @classmethod
+    def assemble_cors_origins(cls, v: Any) -> List[str]:
+        if isinstance(v, str):
+            v = v.strip()
+            if not v or v == "*":
+                return ["*"]
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    return json.loads(v)
+                except Exception:
+                    pass
+            return [item.strip() for item in v.split(",") if item.strip()]
+        return v if isinstance(v, list) else ["*"]
+
     SECRET_KEY: str = os.getenv("SECRET_KEY", "vipcare-enterprise-secret-key-2026-sha256")
     
     # SMTP / Email Configuration for OTP Verification

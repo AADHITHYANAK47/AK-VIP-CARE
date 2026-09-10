@@ -1,10 +1,12 @@
 import sys
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
 
-print("Starting VIPCARE Verification Suite...")
+print("Starting VIPCARE Verification Suite...", flush=True)
 
 # 1. Test Root
 r = client.get("/")

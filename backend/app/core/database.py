@@ -33,20 +33,26 @@ def build_engine(database_url: str):
     )
 
 def init_engine_with_fallback(primary_url: str):
-    """Safely builds an engine, falling back to local SQLite if the remote DB cannot be reached."""
+    """Safely builds an engine. In production, strictly validates remote DB connection without silent SQLite fallback."""
     try:
         eng = build_engine(primary_url)
         with eng.connect() as conn:
             conn.execute(text("SELECT 1"))
+        print(f"[INFO] Successfully connected to database: {mask_database_url(primary_url)}")
         return eng, primary_url
     except Exception as e:
-        if not primary_url.startswith("sqlite"):
+        print(f"\n[ERROR] Failed to connect to database ({mask_database_url(primary_url)}): {e}")
+        # Only fallback if ALLOW_SQLITE_FALLBACK is explicitly enabled in environment
+        allow_fallback = os.getenv("ALLOW_SQLITE_FALLBACK", "false").lower() in ["true", "1", "yes"]
+        if allow_fallback and not primary_url.startswith("sqlite"):
             fallback_url = "sqlite:///./careerlens.db"
-            print(f"\n[WARNING] Could not connect to remote database ({mask_database_url(primary_url)}): {e}")
-            print(f"[INFO] Automatically falling back to local SQLite ({fallback_url}) so CareerLens runs smoothly.\n")
+            print(f"[WARNING] ALLOW_SQLITE_FALLBACK is true. Falling back to local SQLite ({fallback_url}).\n")
             eng = build_engine(fallback_url)
             return eng, fallback_url
-        raise e
+        raise RuntimeError(
+            f"Database connection error for {mask_database_url(primary_url)}: {e}. "
+            f"SQLite fallback is disabled to guarantee data persists to Supabase in production."
+        ) from e
 
 engine, active_url = init_engine_with_fallback(settings.DATABASE_URL)
 settings.DATABASE_URL = active_url

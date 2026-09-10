@@ -15,7 +15,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "VIPCARE AI"
     VERSION: str = "1.1.0"
     API_V1_STR: str = "/api"
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./careerlens.db")
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "postgresql://postgres.qdcjhlhdghswooqxbriw:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+    )
     CORS_ORIGINS: list[str] = ["*"]
     SECRET_KEY: str = os.getenv("SECRET_KEY", "vipcare-enterprise-secret-key-2026-sha256")
     
